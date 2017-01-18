@@ -71,6 +71,10 @@ def calculate_output_size(width, height, scale, image_size):
 
     return size
 
+def check_scale_and_size(width,height,scale):
+    if width and height and scale:
+        raise ValueError('Нельзя передавать вместе и размеры и масштаб')
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -81,22 +85,22 @@ if __name__ == '__main__':
     parser.add_argument("-s", "--scale", help="scale to a new image")
     args = parser.parse_args()
 
-    if args.width and args.height and args.scale:
-        print('Нельзя передавать вместе и размеры и масштаб')
+    check_scale_and_size(args.width,args.height,args.scale)
+
+    image = load_original_image(args.file)
+    size = calculate_output_size(args.width, args.height, args.scale, image.size)
+
+    if not is_image_right_scalled(image.size, size):
+        print('Внимание ! Пропорции не совпадают с исходным изображением')
+
+    resized_image = resize_image(image, size)
+
+    if args.output:
+        output_path = args.output
     else:
-        image = load_original_image(args.file)
-        size = calculate_output_size(args.width, args.height, args.scale, image.size)
-        if not is_image_right_scalled(image.size, size):
-            print('Внимание ! Пропорции не совпадают с исходным изображением')
+        output_path = create_output_name(args.file, size)
 
-        resized_image = resize_image(image, size)
-
-        if args.output:
-            output_path = args.output
-        else:
-            output_path = create_output_name(args.file, size)
-
-        try:
-            save_resized_image(resized_image, output_path)
-        except IOError:
-            print('Ошибка при сохранении файла')
+    try:
+        save_resized_image(resized_image, output_path)
+    except IOError:
+        print('Ошибка при сохранении файла')
