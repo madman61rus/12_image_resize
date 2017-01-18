@@ -56,7 +56,20 @@ def save_resized_image(resized_image, path_to_result, format='JPEG'):
 
 
 def print_error_scale(width, height):
-    print('Пропорции не совпадают ')
+    print('Пропорции не совпадают')
+
+
+def calculate_output_size(width, height, scale, image_size):
+    if width and not height:
+        size = calculate_height(args.width, image_size[0])
+    if not width and height:
+        size = calculate_width(args.height, image_size[1])
+    if scale and not width and not height:
+        size = calculate_scaled_width(int(scale), image_size)
+    else:
+        size = int(width), int(height)
+
+    return size
 
 
 if __name__ == '__main__':
@@ -72,18 +85,9 @@ if __name__ == '__main__':
         print('Нельзя передавать вместе и размеры и масштаб')
     else:
         image = load_original_image(args.file)
-        size = image.size
-
-        if args.width and not args.height:
-            size = calculate_height(args.width, size[0])
-        if not args.width and args.height:
-            size = calculate_width(args.height, size[1])
-        if args.scale and not args.width and not args.height:
-            size = calculate_scaled_width(int(args.scale), image.size)
-        else:
-            size = int(args.width), int(args.height)
-            if not is_image_right_scalled(image.size, size):
-                print('Внимание ! Пропорции не совпадают с исходным изображением')
+        size = calculate_output_size(args.width, args.height, args.scale, image.size)
+        if not is_image_right_scalled(image.size, size):
+            print('Внимание ! Пропорции не совпадают с исходным изображением')
 
         resized_image = resize_image(image, size)
 
