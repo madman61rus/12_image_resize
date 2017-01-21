@@ -6,30 +6,28 @@ from PIL import Image
 def create_output_name(path_to_original, size):
     path, filename = os.path.split(path_to_original)
     splited_filename = filename.split('.')
+    
     new_file_name = '{}_{}x{}.{}'.format(''.join(splited_filename[:-1]), size[0], size[1], splited_filename[-1])
     return os.path.join(os.path.dirname(args.file), new_file_name)
 
 
-def calculate_height(width, image_width):
-    ratio = (int(width) / float(image_width))
-    height = int(float(image.size[1]) * ratio)
-    size = int(width), height
-    return size
+def calculate_new_size(image_width, image_height,width=None,height=None,scale=None):
+    if width and not height:
+        ratio = (int(width) / float(image_width))
+        height = int(float(image_height) * ratio)
+        size = int(width), height
+    elif not width and height:
+        ratio = (int(height) / float(image_height))
+        width = int(float(image_width) * ratio)
+        size = width, int(height)
+    elif scale and not (width or height):
+        size = image_width * scale, image_height * scale
 
-
-def calculate_width(height, image_height):
-    ratio = (int(height) / float(image_height))
-    width = int(float(image.size[0]) * ratio)
-    size = width, int(height)
-    return size
-
-
-def calculate_scaled_width(scale, size):
-    size = size[0] * scale, size[1] * scale
     return size
 
 
 def is_image_right_scalled(size_image, size):
+
     ratio_image = size_image[0] / size_image[1]
     new_size_image = size[0] / size[1]
     if not ratio_image == new_size_image:
@@ -61,11 +59,11 @@ def print_error_scale(width, height):
 
 def calculate_output_size(width, height, scale, image_size):
     if width and not height:
-        size = calculate_height(args.width, image_size[0])
+        size = calculate_new_size(image_size[0],image_size[1], args.width )
     if not width and height:
-        size = calculate_width(args.height, image_size[1])
+        size = calculate_new_size(image_size[0],image_size[1],None, args.height)
     if scale and not width and not height:
-        size = calculate_scaled_width(int(scale), image_size)
+        size = calculate_new_size(image_size[0],image_size[1],scale=int(scale))
     else:
         size = int(width), int(height)
 
