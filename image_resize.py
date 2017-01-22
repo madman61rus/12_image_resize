@@ -44,8 +44,8 @@ def load_original_image(path_to_original):
         return None
 
 
-def resize_image(image, size):
-    new_image = image.resize(size, Image.ANTIALIAS)
+def resize_image(image_for_resize, size):
+    new_image = image_for_resize.resize(size, Image.ANTIALIAS)
     return new_image
 
 
